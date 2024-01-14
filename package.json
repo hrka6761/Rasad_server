@@ -1,0 +1,17 @@
+{
+  "name": "signaling_server",
+  "version": "1.0.0",
+  "description": "Signaling server for Rasad application",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "rasad",
+    "webrtc",
+    "signaling server"
+  ],
+  "author": "Hamidreza Karami",
+  "license": "ISC"
+}
