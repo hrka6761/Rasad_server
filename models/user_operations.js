@@ -1,3 +1,4 @@
+import {USER_TABLE} from "../utilities/env.js";
 import {dbConnectionPool} from "../utilities/db_config.js"
 
 
@@ -6,7 +7,7 @@ class UserModel {
     static insertNewUser = async (user) => {
         try {
             const [result] = await dbConnectionPool.query(
-                `INSERT INTO user (fullname, mobile, email) VALUE (?,?,?)`,
+                `INSERT INTO ${USER_TABLE} (fullname, mobile, email) VALUE (?,?,?)`,
                 [user.fullname, user.mobile, user.email])
             return result.insertId
         } catch (error) {
@@ -17,7 +18,7 @@ class UserModel {
     static editUserInfo = async (user) => {
         try {
             const [result] = await dbConnectionPool.query(
-                `UPDATE user
+                `UPDATE ${USER_TABLE}
                  SET fullname = ?,
                      mobile   = ?,
                      email    = ?
@@ -32,7 +33,7 @@ class UserModel {
     static fetchUserByMobile = async (mobile) => {
         const [[result]] = await dbConnectionPool.query(
             `SELECT *
-             FROM user
+             FROM ${USER_TABLE}
              WHERE mobile = ?`,
             [mobile])
         return result
@@ -41,7 +42,7 @@ class UserModel {
     static deleteUser = async (id) => {
         const [result] = await dbConnectionPool.query(
             `DELETE
-             FROM user
+             FROM ${USER_TABLE}
              WHERE id = ?`,
             [id]
         )
