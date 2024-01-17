@@ -11,10 +11,12 @@ const USER_TABLE = 'user'
 //Https variables
 const HTTPS_PORT = '1367'
 const BASE_USER_ROUTER = '/api/user'
-const ADD_USER_END_POINT = '/add'
-const UPDATE_USER_END_POINT = '/update'
-const GET_USER_END_POINT = '/get/:mobile'
-const DELETE_USER_END_POINT = '/delete/:id'
+const REGISTER_USER_END_POINT = '/register'
+const EDIT_USERNAME_END_POINT = '/edit/username'
+const EDIT_EMAIL_END_POINT = '/edit/email'
+const EDIT_MOBILE_END_POINT = '/edit/mobile'
+const LOGIN_USER_END_POINT = '/login/:mobile'
+const DELETE_ACCOUNT_END_POINT = '/delete_account/:id'
 
 export {
     DB_HOST,
@@ -25,8 +27,10 @@ export {
     USER_TABLE,
     HTTPS_PORT,
     BASE_USER_ROUTER,
-    ADD_USER_END_POINT,
-    UPDATE_USER_END_POINT,
-    GET_USER_END_POINT,
-    DELETE_USER_END_POINT
+    REGISTER_USER_END_POINT,
+    EDIT_USERNAME_END_POINT,
+    EDIT_EMAIL_END_POINT,
+    EDIT_MOBILE_END_POINT,
+    LOGIN_USER_END_POINT,
+    DELETE_ACCOUNT_END_POINT
 }

@@ -5,21 +5,37 @@ import {dbConnectionPool} from "../utilities/db_config.js"
 class UserModel {
 
     static insertNewUser = async (user) => {
-        const [result] = await dbConnectionPool.query(
-            `INSERT INTO ${USER_TABLE} (fullname, mobile, email) VALUE (?,?,?)`,
-            [user.fullname, user.mobile, user.email])
-        return result.insertId
+        await dbConnectionPool.query(
+            `INSERT INTO ${USER_TABLE} (id, username, mobile, email) VALUE (?,?,?,?)`,
+            [user.id, user.username, user.mobile, user.email])
+        return user
     }
 
-    static editUserInfo = async (user) => {
-        const [result] = await dbConnectionPool.query(
+    static editUserUsername = async (user) => {
+        await dbConnectionPool.query(
             `UPDATE ${USER_TABLE}
-             SET fullname = ?,
-                 mobile   = ?,
-                 email    = ?
+             SET username = ?
              WHERE id = ?`,
-            [user.fullname, user.mobile, user.email, user.id])
-        return result.insertId
+            [user.username, user.id])
+        return user
+    }
+
+    static editUserEmail = async (user) => {
+        await dbConnectionPool.query(
+            `UPDATE ${USER_TABLE}
+             SET email = ?
+             WHERE id = ?`,
+            [user.email, user.id])
+        return user
+    }
+
+    static editUserMobile = async (user) => {
+        await dbConnectionPool.query(
+            `UPDATE ${USER_TABLE}
+             SET mobile = ?
+             WHERE id = ?`,
+            [user.mobile, user.id])
+        return user
     }
 
     static fetchUserByMobile = async (mobile) => {
@@ -31,7 +47,7 @@ class UserModel {
         return result
     }
 
-    static deleteUser = async (id) => {
+    static removeUser = async (id) => {
         const [result] = await dbConnectionPool.query(
             `DELETE
              FROM ${USER_TABLE}

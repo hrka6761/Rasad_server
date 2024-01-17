@@ -1,24 +1,30 @@
 import {
-    ADD_USER_END_POINT,
-    UPDATE_USER_END_POINT,
-    DELETE_USER_END_POINT,
-    GET_USER_END_POINT
+    REGISTER_USER_END_POINT,
+    EDIT_USERNAME_END_POINT,
+    EDIT_EMAIL_END_POINT,
+    EDIT_MOBILE_END_POINT,
+    DELETE_ACCOUNT_END_POINT,
+    LOGIN_USER_END_POINT
 } from "../utilities/env.js";
 import {
-    insertNewUser,
-    editUserInfo,
-    fetchUserByMobile,
-    removeUser
+    registerUser,
+    editUsername,
+    editEmail,
+    editMobile,
+    loginUser,
+    deleteAccount
 } from "../controllers/user_controller.js"
 import express from 'express'
 
 
 const userRouter = express.Router()
 
-userRouter.post(ADD_USER_END_POINT, insertNewUser)
-userRouter.put(UPDATE_USER_END_POINT, editUserInfo)
-userRouter.get(GET_USER_END_POINT, fetchUserByMobile)
-userRouter.delete(DELETE_USER_END_POINT, removeUser)
+userRouter.post(REGISTER_USER_END_POINT, registerUser)
+userRouter.put(EDIT_USERNAME_END_POINT, editUsername)
+userRouter.put(EDIT_EMAIL_END_POINT, editEmail)
+userRouter.put(EDIT_MOBILE_END_POINT, editMobile)
+userRouter.get(LOGIN_USER_END_POINT, loginUser)
+userRouter.delete(DELETE_ACCOUNT_END_POINT, deleteAccount)
 
 
 export {userRouter}
