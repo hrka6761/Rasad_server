@@ -5,29 +5,21 @@ import {dbConnectionPool} from "../utilities/db_config.js"
 class UserModel {
 
     static insertNewUser = async (user) => {
-        try {
-            const [result] = await dbConnectionPool.query(
-                `INSERT INTO ${USER_TABLE} (fullname, mobile, email) VALUE (?,?,?)`,
-                [user.fullname, user.mobile, user.email])
-            return result.insertId
-        } catch (error) {
-            return error
-        }
+        const [result] = await dbConnectionPool.query(
+            `INSERT INTO ${USER_TABLE} (fullname, mobile, email) VALUE (?,?,?)`,
+            [user.fullname, user.mobile, user.email])
+        return result.insertId
     }
 
     static editUserInfo = async (user) => {
-        try {
-            const [result] = await dbConnectionPool.query(
-                `UPDATE ${USER_TABLE}
-                 SET fullname = ?,
-                     mobile   = ?,
-                     email    = ?
-                 WHERE id = ?`,
-                [user.fullname, user.mobile, user.email, user.id])
-            return result.insertId
-        } catch (error) {
-            return error
-        }
+        const [result] = await dbConnectionPool.query(
+            `UPDATE ${USER_TABLE}
+             SET fullname = ?,
+                 mobile   = ?,
+                 email    = ?
+             WHERE id = ?`,
+            [user.fullname, user.mobile, user.email, user.id])
+        return result.insertId
     }
 
     static fetchUserByMobile = async (mobile) => {
