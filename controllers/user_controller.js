@@ -31,16 +31,21 @@ const editMobile = tryCatchHandler(async (req, res) => {
 const loginUser = tryCatchHandler(async (req, res) => {
     udv.validateDataToFetch({mobile: req.params.mobile})
     const result = await UserModel.fetchUserByMobile(req.params.mobile)
-    if (!result)
-        res.sendStatus(404)
+    if (!result) {
+        res.status(404).send('حساب کاربری با این شماره موبایل موجود نیست.')
+        return
+    }
     res.status(200).json(result)
 })
 
 const deleteAccount = tryCatchHandler(async (req, res) => {
     udv.validateDataToDelete({id: req.params.id})
     const result = await UserModel.removeUser(req.params.id)
-    if (result)
-        res.sendStatus(200)
+    if (!result) {
+        res.status(404).send('حساب کاربری با این آیدی موجود نیست.')
+        return
+    }
+    res.sendStatus(200)
 })
 
 
