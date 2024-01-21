@@ -5,9 +5,9 @@ import {UserDataValidation as udv} from "../utilities/user_data_validation.js";
 
 
 const sendOTP = tryCatchHandler(async (req, res) => {
-    udv.validateMobileNumber({mobile: req.params.mobile})
+    udv.validateDataToSendOTP({mobile: req.params.mobile})
     const otp = prepareOTPByMobile(req.params.mobile)
-    res.status(200).json(otp)
+    res.sendStatus(200)
 })
 
 const registerUser = tryCatchHandler(async (req, res) => {
@@ -35,13 +35,16 @@ const editMobile = tryCatchHandler(async (req, res) => {
 })
 
 const loginUser = tryCatchHandler(async (req, res) => {
-    udv.validateMobileNumber({mobile: req.params.mobile})
-    const result = await UserModel.fetchUserByMobile(req.params.mobile)
-    if (!result) {
-        res.status(404).send('حساب کاربری با این شماره موبایل موجود نیست.')
-        return
-    }
-    res.status(200).json(result)
+    udv.validateDataToLogin({mobile: req.body.mobile, otp: req.body.otp})
+    if (req.body.otp === "111111") {
+        const result = await UserModel.fetchUserByMobile(req.body.mobile)
+        if (!result) {
+            res.status(404).send('حساب کاربری با این شماره موبایل موجود نیست.')
+            return
+        }
+        res.status(200).json(result)
+    } else
+        res.sendStatus(400)
 })
 
 const deleteAccount = tryCatchHandler(async (req, res) => {

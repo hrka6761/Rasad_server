@@ -16,7 +16,7 @@ const REGISTER_USER_END_POINT = '/register'
 const EDIT_USERNAME_END_POINT = '/edit/username'
 const EDIT_EMAIL_END_POINT = '/edit/email'
 const EDIT_MOBILE_END_POINT = '/edit/mobile'
-const LOGIN_USER_END_POINT = '/login/:mobile'
+const LOGIN_USER_END_POINT = '/login'
 const DELETE_ACCOUNT_END_POINT = '/delete_account/:id'
 
 export {

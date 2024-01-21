@@ -26,7 +26,7 @@ userRouter.post(REGISTER_USER_END_POINT, registerUser)
 userRouter.put(EDIT_USERNAME_END_POINT, editUsername)
 userRouter.put(EDIT_EMAIL_END_POINT, editEmail)
 userRouter.put(EDIT_MOBILE_END_POINT, editMobile)
-userRouter.get(LOGIN_USER_END_POINT, loginUser)
+userRouter.post(LOGIN_USER_END_POINT, loginUser)
 userRouter.delete(DELETE_ACCOUNT_END_POINT, deleteAccount)
 
 

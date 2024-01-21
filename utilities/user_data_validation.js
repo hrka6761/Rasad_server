@@ -56,7 +56,27 @@ class UserDataValidation {
         if (error) throw new ValidationError(error.details[0].message, 400)
     }
 
-    static validateMobileNumber(mobile) {
+    static validateDataToLogin(userData) {
+        const schema = {
+            mobile: joi.string().length(11).pattern(new RegExp('^09\\d{9}\$')).required().messages({
+                'string.base': 'موبایل باید از نوع string باشد.',
+                'string.pattern.base': 'فرمت موبایل بایدبه صورت *********09 باشد.',
+                'string.length': 'موبایل باید 11 کاراکتر باشد.',
+                'any.required': 'تعیین موبایل برای شناسایی الزامی است.'
+            }),
+            otp: joi.string().length(6).regex(/^\d+$/).required().messages({
+                'string.base': 'رمز موقت باید از نوع string باشد.',
+                'string.pattern.base': 'رمز موقت تنها شامل عدد است.',
+                'string.length': 'رمز موقت باید 6 کاراکتر باشد.',
+                'any.required': 'تعیین رمز موقت برای شناسایی الزامی است.'
+            })
+        }
+
+        const error = joi.object(schema).validate(userData).error
+        if (error) throw new ValidationError(error.details[0].message, 400)
+    }
+
+    static validateDataToSendOTP(userData) {
         const schema = {
             mobile: joi.string().length(11).pattern(new RegExp('^09\\d{9}\$')).required().messages({
                 'string.base': 'موبایل باید از نوع string باشد.',
@@ -66,7 +86,7 @@ class UserDataValidation {
             })
         }
 
-        const error = joi.object(schema).validate(mobile).error
+        const error = joi.object(schema).validate(userData).error
         if (error) throw new ValidationError(error.details[0].message, 400)
     }
 
