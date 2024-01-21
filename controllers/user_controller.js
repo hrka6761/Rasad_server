@@ -4,6 +4,12 @@ import {v4 as uuid} from 'uuid'
 import {UserDataValidation as udv} from "../utilities/user_data_validation.js";
 
 
+const sendOTP = tryCatchHandler(async (req, res) => {
+    udv.validateMobileNumber({mobile: req.params.mobile})
+    const otp = prepareOTPByMobile(req.params.mobile)
+    res.status(200).json(otp)
+})
+
 const registerUser = tryCatchHandler(async (req, res) => {
     udv.validateDataToInsert(req.body)
     const result = await UserModel.insertNewUser(prepareDataForInsert(req.body))
@@ -29,7 +35,7 @@ const editMobile = tryCatchHandler(async (req, res) => {
 })
 
 const loginUser = tryCatchHandler(async (req, res) => {
-    udv.validateDataToFetch({mobile: req.params.mobile})
+    udv.validateMobileNumber({mobile: req.params.mobile})
     const result = await UserModel.fetchUserByMobile(req.params.mobile)
     if (!result) {
         res.status(404).send('حساب کاربری با این شماره موبایل موجود نیست.')
@@ -67,8 +73,13 @@ function prepareDataForEdit(user) {
     return {id, username, mobile, email}
 }
 
+function prepareOTPByMobile(mobile) {
+    return 111111;
+}
+
 
 export {
+    sendOTP,
     registerUser,
     editUsername,
     editEmail,

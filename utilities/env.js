@@ -11,6 +11,7 @@ const USER_TABLE = 'user'
 //Https variables
 const HTTPS_PORT = '1367'
 const BASE_USER_ROUTER = '/api/user'
+const SEND_OTP_END_POINT = '/otp/:mobile'
 const REGISTER_USER_END_POINT = '/register'
 const EDIT_USERNAME_END_POINT = '/edit/username'
 const EDIT_EMAIL_END_POINT = '/edit/email'
@@ -27,6 +28,7 @@ export {
     USER_TABLE,
     HTTPS_PORT,
     BASE_USER_ROUTER,
+    SEND_OTP_END_POINT,
     REGISTER_USER_END_POINT,
     EDIT_USERNAME_END_POINT,
     EDIT_EMAIL_END_POINT,

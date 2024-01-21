@@ -56,7 +56,7 @@ class UserDataValidation {
         if (error) throw new ValidationError(error.details[0].message, 400)
     }
 
-    static validateDataToFetch(mobile) {
+    static validateMobileNumber(mobile) {
         const schema = {
             mobile: joi.string().length(11).pattern(new RegExp('^09\\d{9}\$')).required().messages({
                 'string.base': 'موبایل باید از نوع string باشد.',
