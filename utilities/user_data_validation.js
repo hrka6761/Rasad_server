@@ -17,7 +17,7 @@ class UserDataValidation {
                 'string.length': 'موبایل باید 11 کاراکتر باشد.',
                 'any.required': 'تعیین موبایل برای شناسایی الزامی است.'
             }),
-            email: joi.string().max(60).email().messages({
+            email: joi.string().max(60).email().allow('').optional().messages({
                 'string.base': 'ایمیل باید از نوع string باشد.',
                 'string.email': 'فرمت ایمیل باید به صورت any@any.any باشد.',
                 'string.max': 'نام کاربری باید کمتر از 60 کاراکتر باشد.',
