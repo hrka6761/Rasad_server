@@ -28,9 +28,9 @@ class UserDataValidation {
         if (error) throw new ValidationError(error.details[0].message, 400)
     }
 
-    static validateDataToEdit(userData) {
+    static validateDataToEditUsername(userData) {
         const schema = {
-            id: joi.uuid().required().messages({
+            id: joi.string().uuid().required().messages({
                 'string.guid': 'فرمت آیدی اشتباه است.',
                 'any.required': 'ارسال آیدی برای شناسایی کاربر الزامی است.'
             }),
@@ -39,13 +39,23 @@ class UserDataValidation {
                 'string.max': 'نام کاربری باید کمتر از 60 کاراکتر باشد.',
                 'any.required': 'تعیین نام کاربری منحصر به فرد برای شناسایی توسط دیگران الزامی است.'
             }),
-            mobile: joi.string().length(11).pattern(new RegExp('^09\\d{9}\$')).required().messages({
-                'string.base': 'موبایل باید از نوع string باشد.',
-                'string.pattern.base': 'فرمت موبایل بایدبه صورت *********09 باشد.',
-                'string.length': 'موبایل باید 11 کاراکتر باشد.',
-                'any.required': 'تعیین موبایل برای شناسایی الزامی است.'
+            mobile: joi.optional(),
+            email: joi.optional(),
+        }
+
+        const error = joi.object(schema).validate(userData).error
+        if (error) throw new ValidationError(error.details[0].message, 400)
+    }
+
+    static validateDataToEditEmail(userData) {
+        const schema = {
+            id: joi.string().uuid().required().messages({
+                'string.guid': 'فرمت آیدی اشتباه است.',
+                'any.required': 'ارسال آیدی برای شناسایی کاربر الزامی است.'
             }),
-            email: joi.string().max(60).email().messages({
+            username: joi.optional(),
+            mobile: joi.optional(),
+            email: joi.string().max(60).email().required().messages({
                 'string.base': 'ایمیل باید از نوع string باشد.',
                 'string.email': 'فرمت ایمیل باید به صورت any@any.any باشد.',
                 'string.max': 'نام کاربری باید کمتر از 60 کاراکتر باشد.',

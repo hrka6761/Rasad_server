@@ -15,9 +15,12 @@ const SEND_OTP_END_POINT = '/otp/:mobile'
 const REGISTER_USER_END_POINT = '/register'
 const EDIT_USERNAME_END_POINT = '/edit/username'
 const EDIT_EMAIL_END_POINT = '/edit/email'
-const EDIT_MOBILE_END_POINT = '/edit/mobile'
 const LOGIN_USER_END_POINT = '/login'
 const DELETE_ACCOUNT_END_POINT = '/delete_account/:id'
+
+//Token signature
+const SIGNATURE = "rasad_signaling_server_signature_author_HAMIDREZA_KARAMI_1367_0010520661"
+const TOKEN_HEADER_KEY = 'Authorization'
 
 export {
     DB_HOST,
@@ -32,7 +35,8 @@ export {
     REGISTER_USER_END_POINT,
     EDIT_USERNAME_END_POINT,
     EDIT_EMAIL_END_POINT,
-    EDIT_MOBILE_END_POINT,
     LOGIN_USER_END_POINT,
-    DELETE_ACCOUNT_END_POINT
+    DELETE_ACCOUNT_END_POINT,
+    SIGNATURE,
+    TOKEN_HEADER_KEY
 }
