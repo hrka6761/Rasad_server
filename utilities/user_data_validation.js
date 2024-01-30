@@ -6,9 +6,9 @@ class UserDataValidation {
     static validateDataToInsert(userData) {
         const schema = {
             id: joi.optional(),
-            username: joi.string().max(60).required().messages({
+            username: joi.string().max(30).required().messages({
                 'string.base': 'نام کاربری باید از نوع string باشد.',
-                'string.max': 'نام کاربری باید کمتر از 60 کاراکتر باشد.',
+                'string.max': 'نام کاربری باید کمتر از 30 کاراکتر باشد.',
                 'any.required': 'تعیین نام کاربری منحصر به فرد برای شناسایی توسط دیگران الزامی است.'
             }),
             mobile: joi.string().length(11).pattern(new RegExp('^09\\d{9}\$')).required().messages({
@@ -17,10 +17,10 @@ class UserDataValidation {
                 'string.length': 'موبایل باید 11 کاراکتر باشد.',
                 'any.required': 'تعیین موبایل برای شناسایی الزامی است.'
             }),
-            email: joi.string().max(60).email().allow('').optional().messages({
+            email: joi.string().max(30).email().allow('').optional().messages({
                 'string.base': 'ایمیل باید از نوع string باشد.',
                 'string.email': 'فرمت ایمیل باید به صورت any@any.any باشد.',
-                'string.max': 'نام کاربری باید کمتر از 60 کاراکتر باشد.',
+                'string.max': 'نام کاربری باید کمتر از 30 کاراکتر باشد.',
             }),
         }
 
@@ -34,9 +34,9 @@ class UserDataValidation {
                 'string.guid': 'فرمت آیدی اشتباه است.',
                 'any.required': 'ارسال آیدی برای شناسایی کاربر الزامی است.'
             }),
-            username: joi.string().max(60).required().messages({
+            username: joi.string().max(30).required().messages({
                 'string.base': 'نام کاربری باید از نوع string باشد.',
-                'string.max': 'نام کاربری باید کمتر از 60 کاراکتر باشد.',
+                'string.max': 'نام کاربری باید کمتر از 30 کاراکتر باشد.',
                 'any.required': 'تعیین نام کاربری منحصر به فرد برای شناسایی توسط دیگران الزامی است.'
             }),
             mobile: joi.optional(),
@@ -55,10 +55,10 @@ class UserDataValidation {
             }),
             username: joi.optional(),
             mobile: joi.optional(),
-            email: joi.string().max(60).email().required().messages({
+            email: joi.string().max(30).email().required().messages({
                 'string.base': 'ایمیل باید از نوع string باشد.',
                 'string.email': 'فرمت ایمیل باید به صورت any@any.any باشد.',
-                'string.max': 'نام کاربری باید کمتر از 60 کاراکتر باشد.',
+                'string.max': 'نام کاربری باید کمتر از 30 کاراکتر باشد.',
             }),
         }
 
