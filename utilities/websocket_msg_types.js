@@ -3,8 +3,9 @@ const msgTypes = {
     handshake: "Handshake",
     call: "Call",
     answer: "Answer",
-    iceCandidate: "IceCandidate",
-    signOut: "SignOut"
+    ice: "Ice",
+    signOut: "SignOut",
+    failed: "Failed"
 }
 
 

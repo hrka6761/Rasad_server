@@ -33,15 +33,6 @@ class Connections {
 
         return username
     }
-
-    static hasConnectionByUsername(username) {
-        return Connections.#connectionsList.has(username)
-    }
-
-    static async hasConnectionByWebSocket(ws) {
-        const connectionsValues = [... Connections.#connectionsList.values()]
-        return connectionsValues.includes(ws)
-    }
 }
 
 
