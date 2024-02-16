@@ -23,4 +23,4 @@ const authorization = (req, res, next) => {
 }
 
 
-export {authorization}
+export default authorization
