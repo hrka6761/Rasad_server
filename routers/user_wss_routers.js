@@ -130,8 +130,8 @@ function handleReceiveMessage(userConnection, targetConnection, message) {
             userConnection.send(
                 JSON.stringify({
                     type: msgTypes.failed,
-                    username: msg.username,
-                    target: msg.target,
+                    username: message.username,
+                    target: message.target,
                     data: JSON.stringify({code: 4004, reason: "هدف مورد نظر یافت نشد."})
                 })
             )
