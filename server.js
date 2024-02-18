@@ -3,7 +3,7 @@ import express from "express"
 import {userRouter} from "./routers/user_http_routers.js"
 import {errorHandler} from "./middle_wares/error_handling.js"
 import {WebSocketServer} from "ws"
-import {onReceiveMessage,onCLoseWebsocket} from "./routers/user_wss_routers.js"
+import {onReceiveMessage,onCLoseWebsocket} from "./routers/user_signaling_routers.js"
 
 
 const http = express()
