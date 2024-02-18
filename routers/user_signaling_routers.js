@@ -1,5 +1,5 @@
-import msgTypes from "../utilities/websocket_msg_types.js"
-import Connections from "../utilities/websocket_connetions.js"
+import msgTypes from "../utilities/signaling_msg_types.js"
+import Connections from "../utilities/signaling_connetions.js"
 import authorization from "../middle_wares/user_wss_authorization.js"
 
 
