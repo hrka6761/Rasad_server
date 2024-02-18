@@ -10,6 +10,8 @@ const USER_TABLE = 'user'
 
 //Https variables
 const HTTPS_PORT = '1367'
+const SIGNALING_PORT = '13676'
+const WEB_SOCKET_PORT = '11066'
 const BASE_USER_ROUTER = '/api/user'
 const SEND_OTP_END_POINT = '/otp/:mobile'
 const REGISTER_USER_END_POINT = '/register'
@@ -30,6 +32,8 @@ export {
     DB_PASSWORD,
     USER_TABLE,
     HTTPS_PORT,
+    SIGNALING_PORT,
+    WEB_SOCKET_PORT,
     BASE_USER_ROUTER,
     SEND_OTP_END_POINT,
     REGISTER_USER_END_POINT,
