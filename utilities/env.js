@@ -7,6 +7,7 @@ const DB_PASSWORD = 'root'
 
 //Names of the database tables
 const USER_TABLE = 'user'
+const TARGETS_TABLE = 'targets'
 
 //Https variables
 const HTTPS_PORT = '1367'
@@ -31,6 +32,7 @@ export {
     DB_USERNAME,
     DB_PASSWORD,
     USER_TABLE,
+    TARGETS_TABLE,
     HTTPS_PORT,
     SIGNALING_PORT,
     WEB_SOCKET_PORT,
