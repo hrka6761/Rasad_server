@@ -13,7 +13,7 @@ import {
     editEmail,
     loginUser,
     deleteAccount
-} from "../controllers/user_controller.js"
+} from "../controllers/user_http_controller.js"
 import express from 'express'
 import authorization from "../middle_wares/user_http_req_authorization.js";
 

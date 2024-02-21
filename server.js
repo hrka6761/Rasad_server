@@ -3,7 +3,8 @@ import express from "express"
 import {userRouter} from "./routers/user_http_routers.js"
 import {errorHandler} from "./middle_wares/error_handling.js"
 import {WebSocketServer} from "ws"
-import {onReceiveMessage,onCLoseWebsocket} from "./routers/user_signaling_routers.js"
+import {onMessageWebsocket, onCloseWebsocket} from "./routers/user_websocket_routers.js"
+import {onMessageSignaling, onCloseSignaling} from "./routers/user_signaling_routers.js"
 
 
 const http = express()
@@ -19,11 +20,13 @@ http.listen(HTTPS_PORT, () => {
 })
 
 webSocket.on("connection", (ws) => {
-    
+    ws.on("error", console.error)
+    ws.on("message", (data, isBinary) => onMessageWebsocket(ws, data, isBinary))
+    ws.on("close", (code, reason) => onCloseWebsocket(ws, code, reason))
 })
 
 signaling.on( "connection", (ws) => {
     ws.on("error", console.error)
-    ws.on("message", (data, isBinary) => onReceiveMessage(ws, data, isBinary))
-    ws.on("close", (code, reason) => onCLoseWebsocket(ws, code, reason))
+    ws.on("message", (data, isBinary) => onMessageSignaling(ws, data, isBinary))
+    ws.on("close", (code, reason) => onCloseSignaling(ws, code, reason))
 })

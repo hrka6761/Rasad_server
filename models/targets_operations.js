@@ -1,4 +1,4 @@
-import { TARGETS_TABLE } from "../utilities/env"
+import { TARGETS_TABLE } from "../utilities/env.js"
 import {dbConnectionPool} from "../utilities/db_config.js"
 
 
@@ -10,8 +10,17 @@ class TargetsModel {
             [username, target])
     }
 
-    static fetchTargets = async(username) => {
+    static fetchTarget = async(username, target) => {
         const [[result]] = await dbConnectionPool.query(
+            `SELECT *
+             FROM ${TARGETS_TABLE}
+             WHERE username = ? AND target = ?`,
+            [username,target])
+        return result
+    } 
+
+    static fetchTargets = async(username) => {
+        const [result] = await dbConnectionPool.query(
             `SELECT *
              FROM ${TARGETS_TABLE}
              WHERE username = ?`,
@@ -39,3 +48,6 @@ class TargetsModel {
         return result.affectedRows
     }
 }
+
+
+export {TargetsModel}

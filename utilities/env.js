@@ -7,7 +7,7 @@ const DB_PASSWORD = 'root'
 
 //Names of the database tables
 const USER_TABLE = 'user'
-const TARGETS_TABLE = 'targets'
+const TARGETS_TABLE = 'user_targets'
 
 //Https variables
 const HTTPS_PORT = '1367'

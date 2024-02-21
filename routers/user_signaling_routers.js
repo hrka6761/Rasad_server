@@ -3,7 +3,7 @@ import Connections from "../utilities/signaling_connetions.js"
 import authorization from "../middle_wares/user_wss_authorization.js"
 
 
-function onReceiveMessage(ws, data, isBinary) {
+function onMessageSignaling(ws, data, isBinary) {
 
     try {
         const msg = JSON.parse(convertDataToString(data))
@@ -103,7 +103,7 @@ function onReceiveMessage(ws, data, isBinary) {
     }
 }
 
-function onCLoseWebsocket(ws, code, data) {
+function onCloseSignaling(ws, code, data) {
     const reason = convertDataToString(data)
     Connections.removeConnectionByWebsocket(ws).then((username) => {
         console.log(`${username}  disconnected and its connection removed from the connections list. CODE: ${code}, REASON: ${reason}`);        
@@ -142,6 +142,6 @@ function handleReceiveMessage(userConnection, targetConnection, message) {
 
 
 export { 
-    onReceiveMessage ,
-    onCLoseWebsocket
+    onMessageSignaling,
+    onCloseSignaling
 }

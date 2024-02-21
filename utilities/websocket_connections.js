@@ -1,33 +1,33 @@
-class Connections {
-    static #connectionsList
+class Observers {
+    static #observersList
 
 
     static {
-        Connections.#connectionsList = new Map()
+        Observers.#observersList = new Map()
     }
 
 
     static addConnection(username, ws, targets) {
-        Connections.#connectionsList.set(username, {websocket: ws, targets: targets})
+        Observers.#observersList.set(username, {websocket: ws, targets: targets})
     }
 
     static getConnection(username) {
-        return Connections.#connectionsList.get(username)
+        return Observers.#observersList.get(username)
     }
 
     static removeConnectionByUsername(username) {
-        Connections.#connectionsList.delete(username);
+        Observers.#observersList.delete(username);
     }
 
     static async removeConnectionByWebsocket(ws) {
         let username
         let targets
 
-        for  (let [key, value] of Connections.#connectionsList.entries()) { 
+        for  (let [key, value] of Observers.#observersList.entries()) { 
             if(value === ws){
                 username = key
                 targets  = value.targets
-                this.#connectionsList.delete(key)
+                Observers.#observersList.delete(key)
                 break
             }
         }
@@ -36,5 +36,52 @@ class Connections {
     }
 }
 
+class Observables {
+    static #observablesList
 
-export default Connections
+
+    static {
+        Observables.#observablesList = new Map()
+    }
+
+
+    static addConnection(username, ws) {
+        Observables.#observablesList.set(username, {websocket: ws, targets: null})
+    }
+
+    static addConnectionTarget(username, target) {
+        const targetArray = this.getConnection(username).targets
+        if(targetArray){
+            targetArray.push(target)
+            this.getConnection(username).targets = targetList
+        } else
+            this.getConnection(username).targets = [target]
+    }
+
+    static getConnection(username) {
+        return Observables.#observablesList.get(username)
+    }
+
+    static removeConnectionByUsername(username) {
+        Observables.#observablesList.delete(username);
+    }
+
+    static async removeConnectionByWebsocket(ws) {
+        let username
+        let connection
+
+        for  (let [key, value] of Observables.#observablesList.entries()) { 
+            if(value.websocket === ws){
+                username = key
+                connection  = value
+                Observables.#observablesList.delete(key)
+                break
+            }
+        }
+
+        return {username, connection}
+    }
+}
+
+
+export {Observers, Observables}

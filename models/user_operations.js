@@ -20,6 +20,15 @@ class UserModel {
         return result
     }
 
+    static fetchUserByUsername = async (username) => {
+        const [[result]] = await dbConnectionPool.query(
+            `SELECT *
+             FROM ${USER_TABLE}
+             WHERE username = ?`,
+            [username])
+        return result
+    }
+
     static removeUser = async (id) => {
         const [result] = await dbConnectionPool.query(
             `DELETE

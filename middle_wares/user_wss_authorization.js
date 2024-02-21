@@ -2,7 +2,7 @@ import pkg from 'jsonwebtoken'
 import {SIGNATURE} from "../utilities/env.js";
 
 
-function authorization(token, id) {
+async function authorization(token, id) {
     if(!token) {
         return true
     }
@@ -11,16 +11,20 @@ function authorization(token, id) {
         return true
     }
 
-    pkg.verify(token, SIGNATURE, (error, decode) => {
+    let result
+
+    await pkg.verify(token, SIGNATURE, (error, decode) => {
         if (error)
-            return true
+            result = true
         else {
             if (decode.id !== id)
-                return true
+                result = true
             else
-                return true
+                result = true
         }
     })
+
+    return result
 }
 
 

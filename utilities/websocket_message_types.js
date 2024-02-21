@@ -1,10 +1,14 @@
 const msgTypes = {
-    logIn: "LogIn",
-    request: "Request",
+    logInObserver: "LogInObserver",
+    logInObservable: "LogInObservable",
+    requestPermission: "RequestPermission",
+    requestData: "RequestData",
     grant: "Grant",
     denay: "Denay",
-    logOut: "LogOut",
-    message: "Message"
+    logOutObserver: "LogOutObserver",
+    logOutObservable: "LogOutObservable",
+    data: "Data",
+    failed: "Failed"
 }
 
 
