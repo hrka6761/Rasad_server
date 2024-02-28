@@ -12,6 +12,14 @@ const handlelogInObservable = (ws, msg) => {
         const token = authFields[1]
         if(authorization(token, id)){
             Observables.addConnection(msg.username, ws)
+            ws.send(
+                JSON.stringify({
+                    type: msgTypes.logInObservable,
+                    username: msg.username,
+                    targets: msg.targets,
+                    data: null
+                })
+            )
         }else
             failedAuthorization(ws, 4001, 'توکن نامعتبر !!!')
     } else 
@@ -23,14 +31,12 @@ const handlelogInObserver = (ws, msg) => {
         const authFields = msg.data.split(".")
         const id = authFields[0]
         const token = authFields[1]
-        console.log(id, token);
         if(authorization(token, id)){
             Observers.addConnection(msg.username, ws, msg.targets)
-            console.log(msg);
+            console.log(msg.targets);
             if(msg.targets) {
                 msg.targets.forEach( async target => {
                     const targetConnection = getTargetConnection(target)
-                    console.log(targetConnection);
                     if(targetConnection) {
                         const result = await hasTargetPermission(msg.username, target)
 
@@ -122,23 +128,38 @@ const handleDataRequest = (ws, msg) => {
         failedAuthorization(ws, 4002, 'ابتدا وارد شوید.')
 }
 
+const handleLogoutObservableMsg = (ws, msg) => {
+    ws.send(
+        JSON.stringify({
+            type: msgTypes.logOutObservable,
+            username: msg.username,
+            targets: msg.targets,
+            data: null
+        })
+    )
+    console.log(`${msg.username} disconnected and removed from the connections list.`);
+    Observables.removeConnectionByUsername(msg.username)
+}
+
 const handleLogoutObservable = async (ws, code, reason) => {
     const result = await Observables.removeConnectionByWebsocket(ws)
-    console.log(`${result.username}  disconnected and its connection removed from the connections list. CODE: ${code}, REASON: ${reason}`);
-    if(result.connection.targets){ 
-        result.connection.targets.forEach((target) => {
+    if(result.username){
+        console.log(`${result.username}  disconnected and its connection removed from the connections list. CODE: ${code}, REASON: ${reason}`);
+        const targets = result.connection.targets
+        if(targets){ 
+            result.connection.targets.forEach((target) => {
             const targetConnection = getTargetConnection(target)
-            if(targetConnection) {
-                sendLogOutObservableMsg(targetConnection, result.username, ta)
-            }
-        }) 
-    }     
+                if(targetConnection) {
+                    sendLogOutObservableMsg(targetConnection, result.username, ta)
+                }
+            }) 
+        } 
+    }    
 }
 
 
 
 function getTargetConnection(target) {
-    console.log("getTargetConnection");
     return Observables.getConnection(target)
 }
 
@@ -185,7 +206,6 @@ function sendPermissionRequest(targetConnection, username, target) {
 }
 
 function sendOfflineTargetMsg(userConnection, username, target) {
-    console.log("sendOfflineTargetMsg");
     userConnection.send(
         JSON.stringify({
             type: msgTypes.failed,
@@ -283,5 +303,6 @@ export {
     handleRequestData,
     handlePermissionResponse,
     handleDataRequest,
-    handleLogoutObservable
+    handleLogoutObservable,
+    handleLogoutObservableMsg
 }

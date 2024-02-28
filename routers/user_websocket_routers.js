@@ -5,19 +5,24 @@ handlelogInObserver,
 handleRequestData,
 handlePermissionResponse,
 handleDataRequest,
-handleLogoutObservable
+handleLogoutObservable,
+handleLogoutObservableMsg
 } from "../controllers/user_websocket_controller.js"
 import { Observables } from "../utilities/websocket_connections.js"
 
 
 function onMessageWebsocket(ws, data, isBinary) {
+    
 
     try {
         const msg = JSON.parse(convertDataToString(data))
-
+        console.log(msg);
         switch(msg.type) {
             case msgTypes.logInObservable:
                 handlelogInObservable(ws, msg)
+                break
+            case msgTypes.logOutObservable:
+                handleLogoutObservableMsg(ws, msg)
                 break
             case msgTypes.logInObserver:
                 handlelogInObserver(ws, msg)
