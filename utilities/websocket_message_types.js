@@ -8,7 +8,8 @@ const msgTypes = {
     logOutObserver: "LogOutObserver",
     logOutObservable: "LogOutObservable",
     data: "Data",
-    failed: "Failed"
+    failed: "Failed",
+    confirmation: "Confirmation"
 }
 
 

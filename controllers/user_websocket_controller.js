@@ -14,10 +14,10 @@ const handlelogInObservable = (ws, msg) => {
             Observables.addConnection(msg.username, ws)
             ws.send(
                 JSON.stringify({
-                    type: msgTypes.logInObservable,
+                    type: msgTypes.confirmation,
                     username: msg.username,
                     targets: msg.targets,
-                    data: null
+                    data: msgTypes.logInObservable
                 })
             )
         }else
@@ -33,28 +33,14 @@ const handlelogInObserver = (ws, msg) => {
         const token = authFields[1]
         if(authorization(token, id)){
             Observers.addConnection(msg.username, ws, msg.targets)
-            console.log(msg.targets);
-            if(msg.targets) {
-                msg.targets.forEach( async target => {
-                    const targetConnection = getTargetConnection(target)
-                    if(targetConnection) {
-                        const result = await hasTargetPermission(msg.username, target)
-
-                        if(result) {
-                            sendDataRequest(targetConnection, msg.username, target)
-                            Observables.addConnectionTarget(target, msg.username)
-                        } else
-                            sendPermissionRequest(targetConnection, msg.username, target)
-                    } else {
-                        const result = await isTargetValid(target)
-
-                        if(result)
-                            sendOfflineTargetMsg(ws, msg.username, target)
-                        else
-                            sendInvalidTargetMsg(ws, msg.username, target)
-                    }
+            ws.send(
+                JSON.stringify({
+                    type: msgTypes.confirmation,
+                    username: msg.username,
+                    targets: msg.targets,
+                    data: msgTypes.logInObserver
                 })
-            }
+            )
         }else
             failedAuthorization(ws, 4001, 'توکن نامعتبر !!!')
     } else 
@@ -64,15 +50,24 @@ const handlelogInObserver = (ws, msg) => {
 const handleRequestData = (ws, msg) => {
     if(authorizeInObserverList(msg.username)) {
         msg.targets.forEach( async target => {
-            const targetConnection = getTargetConnection(target)
+            const targetConnection = Observables.getConnection(target)
             if(targetConnection) {
                 const result = await hasTargetPermission(msg.username, target)
-    
-                if(result) {
-                    sendDataRequest(targetConnection, msg.username, target)
-                    Observables.addConnectionTarget(target, msg.user)
-                } else
-                    sendPermissionRequest(targetConnection, msg.username, target)
+                const connection = targetConnection.websocket
+
+                if(result)
+                    sendDataRequest(connection, msg.username, target, msg.data)
+                else
+                    sendPermissionRequest(connection, msg.username, target, msg.data)
+
+                ws.send(
+                    JSON.stringify({
+                        type: msgTypes.confirmation,
+                        username: msg.username,
+                        targets: msg.targets,
+                        data: msgTypes.requestData
+                    })
+                )
             } else {
                 const result = await isTargetValid(target)
 
@@ -89,11 +84,12 @@ const handleRequestData = (ws, msg) => {
 const handlePermissionResponse = (ws, msg) => {
     if(authorizeInObservableList(msg.username)) {
         msg.targets.forEach( async target => {
-            const targetConnection = getTargetConnection(target)
+            const targetConnection = Observers.getConnection(target)
             if(targetConnection) {
-                sendPermissionResponse(msg.type, targetConnection, msg.username, target)
+                sendPermissionResponse(msg.type, targetConnection.websocket, msg.username, target)
                 if (msg.type = msgTypes.grant) {
-                    sendDataRequest(ws, msg.username, msg.target)
+                    TargetsModel.insertTarget(target, msg.username)
+                    sendDataRequest(ws, msg.username, msg.target, msg.data)
                     Observables.addConnectionTarget(msg.username, target)
                 }
             } else {
@@ -105,6 +101,14 @@ const handlePermissionResponse = (ws, msg) => {
                     sendInvalidTargetMsg(ws, msg.username, target)
             }
         })
+        ws.send(
+            JSON.stringify({
+                type: msgTypes.confirmation,
+                username: msg.username,
+                targets: msg.targets,
+                data: msg.type
+            })
+        )
     } else 
         failedAuthorization(ws, 4002, 'ابتدا وارد شوید.')
 }
@@ -113,58 +117,132 @@ const handleDataRequest = (ws, msg) => {
     if(authorizeInObservableList(msg.username)) {
         msg.targets.forEach( async target => {
             const targetConnection = getTargetConnection(target)
-            if(targetConnection) {
-                sendData(targetConnection, msg.username, msg.target)
-            } else {
-                const result = await isTargetValid(target)
-
-                if(result)
-                    sendLogOutObserverMsg(ws, msg.username, msg.target)
-                else
-                    sendInvalidTargetMsg(ws, msg.username, target)
+            if (targetConnection) {
+                if(targetConnection.websocket) {
+                    sendData(targetConnection.websocket, msg.username, msg.target, msg.data)
+                    ws.send(
+                        JSON.stringify({
+                            type: msgTypes.confirmation,
+                            username: msg.username,
+                            targets: msg.targets,
+                            data: msgTypes.data
+                        })
+                    )
+                } else {
+                    const result = await isTargetValid(target)
+    
+                    if(result)
+                        sendLogOutObserverMsg(ws, msg.username, msg.target)
+                    else
+                        sendInvalidTargetMsg(ws, msg.username, target)
+                }
             }
         })
     } else 
         failedAuthorization(ws, 4002, 'ابتدا وارد شوید.')
 }
 
-const handleLogoutObservableMsg = (ws, msg) => {
+const handleLogoutObservable = (ws, msg) => {
+    console.log(`${msg.username} disconnected and removed from the connections list.`)
+    Observables.removeConnectionByUsername(msg.username)
+    if(msg.targets) {
+        msg.targets.forEach(target => {
+            const targetConnection = Observers.getConnection(target)
+            Observers.removeConnectionTarget(target, msg.username)
+            if(targetConnection.websocket){
+                targetConnection.websocket.send(
+                    JSON.stringify({
+                        type: msgTypes.logOutObservable,
+                        username: msg.username,
+                        targets: [target],
+                        data: null
+                    })
+                )
+            }
+        })
+    }
     ws.send(
         JSON.stringify({
-            type: msgTypes.logOutObservable,
+            type: msgTypes.confirmation,
             username: msg.username,
             targets: msg.targets,
-            data: null
+            data: msgTypes.logOutObservable
         })
     )
-    console.log(`${msg.username} disconnected and removed from the connections list.`);
-    Observables.removeConnectionByUsername(msg.username)
 }
 
-const handleLogoutObservable = async (ws, code, reason) => {
-    const result = await Observables.removeConnectionByWebsocket(ws)
-    if(result.username){
-        console.log(`${result.username}  disconnected and its connection removed from the connections list. CODE: ${code}, REASON: ${reason}`);
-        const targets = result.connection.targets
+const handleLogoutObserver = (ws, msg) => {
+    console.log(`${msg.username} disconnected and removed from the connections list.`)
+    const targets = Observers.getConnection(msg.username).targets
+    if(targets) {
+        targets.forEach( target => {
+            const targetConnection = Observables.getConnection(target).websocket
+            Observables.removeConnectionTarget(target, msg.username)
+            if(targetConnection) {
+                targetConnection.send(
+                    JSON.stringify({
+                        type: msgTypes.logOutObserver,
+                        username: target,
+                        targets: [msg.username],
+                        data: null
+                    })
+                )
+            }
+        })
+    }
+    ws.send(
+        JSON.stringify({
+            type: msgTypes.confirmation,
+            username: msg.username,
+            targets: msg.targets,
+            data: msgTypes.logOutObserver
+        })
+    )
+}
+
+const handleDisconnect = async (ws, code, reason) => {
+    const observableResult = await Observables.removeConnectionByWebsocket(ws)
+    if(observableResult.username){
+        console.log(`${observableResult.username}  disconnected and its connection removed from the connections list. CODE: ${code}, REASON: ${reason}`);
+        const targets = observableResult.connection.targets
         if(targets){ 
-            result.connection.targets.forEach((target) => {
-            const targetConnection = getTargetConnection(target)
-                if(targetConnection) {
-                    sendLogOutObservableMsg(targetConnection, result.username, ta)
-                }
+            observableResult.connection.targets.forEach((target) => {
+                Observers.removeConnectionTarget(target, observableResult.username)
+                const targetConnection = Observers.getConnection(target)
+                    if (targetConnection) {
+                        if(targetConnection.websocket) {
+                            sendLogOutObservableMsg(targetConnection.websocket, observableResult.username, target)
+                        }
+                    }
             }) 
-        } 
+        }
+    } else {
+        const observerResult = await Observers.removeConnectionByWebsocket(ws)
+        if(observerResult.username) {
+            console.log(`${observerResult.username}  disconnected and its connection removed from the connections list. CODE: ${code}, REASON: ${reason}`);
+            const targets = observerResult.connection.targets
+            if(targets){
+                observerResult.connection.targets.forEach(target => {
+                    Observables.removeConnectionTarget(target, observerResult.username)
+                    const targetConnection = Observables.getConnection(target)
+                        if (targetConnection) {
+                            if(targetConnection.websocket) {
+                                sendLogOutObserverMsg(targetConnection.websocket, observerResult.username, target)
+                            }
+                        }
+                }) 
+            }
+        }
     }    
 }
 
 
 
 function getTargetConnection(target) {
-    return Observables.getConnection(target)
+    return Observers.getConnection(target)
 }
 
 async function hasTargetPermission(username, target) {
-    console.log("hasTargetPermission");
     const result = await TargetsModel.fetchTarget(username, target)
     if(result)
         return true
@@ -173,7 +251,6 @@ async function hasTargetPermission(username, target) {
 }
 
 async function isTargetValid(target) {
-    console.log("isTargetValid");
     const result = await UserModel.fetchUserByUsername(target)
         if(result)
             return true
@@ -181,26 +258,25 @@ async function isTargetValid(target) {
             return false
 }
 
-function sendDataRequest(targetConnection, username, target) {
-    console.log("sendDataRequest");
+function sendDataRequest(targetConnection, username, target, data) {
+    Observers.addConnectionTarget(username, target)
     targetConnection.send(
         JSON.stringify({
             type: msgTypes.requestData,
             username: username,
             targets: [target],
-            data: null
+            data: data
         })
     )
 }
 
-function sendPermissionRequest(targetConnection, username, target) {
-    console.log("sendPermissionRequest");
+function sendPermissionRequest(targetConnection, username, target, data) {
     targetConnection.send(
         JSON.stringify({
             type: msgTypes.requestPermission,
             username: username,
             targets: [target],
-            data: null
+            data: data
         })
     )
 }
@@ -217,7 +293,6 @@ function sendOfflineTargetMsg(userConnection, username, target) {
 }
 
 function sendLogOutObserverMsg(userConnection, username, target) {
-    console.log("sendOfflineTargetMsg");
     userConnection.send(
         JSON.stringify({
             type: msgTypes.logOutObserver,
@@ -229,10 +304,9 @@ function sendLogOutObserverMsg(userConnection, username, target) {
 }
 
 function sendLogOutObservableMsg(userConnection, username, target) {
-    console.log("sendOfflineTargetMsg");
     userConnection.send(
         JSON.stringify({
-            type: msgTypes.logOutObserver,
+            type: msgTypes.logOutObservable,
             username: username,
             targets: [target],
             data: "Target was logo out."
@@ -241,7 +315,6 @@ function sendLogOutObservableMsg(userConnection, username, target) {
 }
 
 function sendInvalidTargetMsg(userConnection, username, target) {
-    console.log("sendInvalidTargetMsg");
     userConnection.send(
         JSON.stringify({
             type: msgTypes.failed,
@@ -253,7 +326,6 @@ function sendInvalidTargetMsg(userConnection, username, target) {
 }
 
 function sendPermissionResponse(response, userConnection, username, target) {
-    console.log("sendPermissionResponse");
     userConnection.send(
         JSON.stringify({
             type: response,
@@ -264,14 +336,13 @@ function sendPermissionResponse(response, userConnection, username, target) {
     )
 }
 
-function sendData(targetConnection, username, target) {
-    console.log("sendData");
-    userConnection.send(
+function sendData(targetConnection, username, target, data) {
+    targetConnection.send(
         JSON.stringify({
             type: msgTypes.data,
             username: username,
             targets: [target],
-            data: null
+            data: data
         })
     )
 }
@@ -284,7 +355,7 @@ function authorizeInObserverList(username) {
 }
 
 function authorizeInObservableList(username) {
-    if(Observers.getConnection(username))
+    if(Observables.getConnection(username))
         return true
     else
         return false
@@ -304,5 +375,6 @@ export {
     handlePermissionResponse,
     handleDataRequest,
     handleLogoutObservable,
-    handleLogoutObservableMsg
+    handleLogoutObserver,
+    handleDisconnect
 }

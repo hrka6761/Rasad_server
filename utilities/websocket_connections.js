@@ -11,6 +11,23 @@ class Observers {
         Observers.#observersList.set(username, {websocket: ws, targets: targets})
     }
 
+    static addConnectionTarget(username, target) {
+        const targetArray = this.getConnection(username).targets
+        if(targetArray){
+            targetArray.push(target)
+            this.getConnection(username).targets = targetArray
+        } else
+            this.getConnection(username).targets = [target]
+    }
+
+    static removeConnectionTarget(username, target) {
+        const targetArray = this.getConnection(username).targets
+        if(targetArray){
+            const newTargets = targetArray.filter(item => item !== target)
+            this.getConnection(username).targets = newTargets
+        }
+    }
+
     static getConnection(username) {
         return Observers.#observersList.get(username)
     }
@@ -21,18 +38,18 @@ class Observers {
 
     static async removeConnectionByWebsocket(ws) {
         let username
-        let targets
+        let connection
 
         for  (let [key, value] of Observers.#observersList.entries()) { 
-            if(value === ws){
+            if(value.websocket === ws){
                 username = key
-                targets  = value.targets
+                connection  = value
                 Observers.#observersList.delete(key)
                 break
             }
         }
-
-        return {username, targets}
+        
+        return {username, connection}
     }
 }
 
@@ -53,9 +70,19 @@ class Observables {
         const targetArray = this.getConnection(username).targets
         if(targetArray){
             targetArray.push(target)
-            this.getConnection(username).targets = targetList
+            this.getConnection(username).targets = targetArray
         } else
             this.getConnection(username).targets = [target]
+    }
+
+    static removeConnectionTarget(username, target) {
+        const targetArray = this.getConnection(username)
+        if (targetArray) {
+            if(targetArray.targets){
+                const newTargets = targetArray.filter(item => item !== target)
+                this.getConnection(username).targets = newTargets
+            }
+        }
     }
 
     static getConnection(username) {
