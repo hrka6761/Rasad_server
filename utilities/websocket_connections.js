@@ -7,28 +7,28 @@ class Observers {
     }
 
 
-    static addConnection(username, ws, targets) {
-        Observers.#observersList.set(username, {websocket: ws, targets: targets})
+    static addMember(username, ws) {
+        Observers.#observersList.set(username, {connection: ws, targets: []})
     }
 
     static addConnectionTarget(username, target) {
-        const targetArray = this.getConnection(username).targets
+        const targetArray = this.getMember(username).targets
         if(targetArray){
             targetArray.push(target)
-            this.getConnection(username).targets = targetArray
+            this.getMember(username).targets = targetArray
         } else
-            this.getConnection(username).targets = [target]
+            this.getMember(username).targets = [target]
     }
 
-    static removeConnectionTarget(username, target) {
-        const targetArray = this.getConnection(username).targets
+    static removeTarget(username, target) {
+        const targetArray = this.getMember(username).targets
         if(targetArray){
             const newTargets = targetArray.filter(item => item !== target)
-            this.getConnection(username).targets = newTargets
+            this.getMember(username).targets = newTargets
         }
     }
 
-    static getConnection(username) {
+    static getMember(username) {
         return Observers.#observersList.get(username)
     }
 
@@ -62,34 +62,34 @@ class Observables {
     }
 
 
-    static addConnection(username, ws) {
-        Observables.#observablesList.set(username, {websocket: ws, targets: null})
+    static addMember(username, connection) {
+        Observables.#observablesList.set(username, {connection: connection, targets: []})
     }
 
     static addConnectionTarget(username, target) {
-        const targetArray = this.getConnection(username).targets
+        const targetArray = this.getMember(username).targets
         if(targetArray){
             targetArray.push(target)
-            this.getConnection(username).targets = targetArray
+            this.getMember(username).targets = targetArray
         } else
-            this.getConnection(username).targets = [target]
+            this.getMember(username).targets = [target]
     }
 
     static removeConnectionTarget(username, target) {
-        const targetArray = this.getConnection(username)
+        const targetArray = this.getMember(username)
         if (targetArray) {
             if(targetArray.targets){
                 const newTargets = targetArray.filter(item => item !== target)
-                this.getConnection(username).targets = newTargets
+                this.getMember(username).targets = newTargets
             }
         }
     }
 
-    static getConnection(username) {
+    static getMember(username) {
         return Observables.#observablesList.get(username)
     }
 
-    static removeConnectionByUsername(username) {
+    static removeMemberByUsername(username) {
         Observables.#observablesList.delete(username);
     }
 

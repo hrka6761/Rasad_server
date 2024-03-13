@@ -11,7 +11,7 @@ const handlelogInObservable = (ws, msg) => {
         const id = authFields[0]
         const token = authFields[1]
         if(authorization(token, id)){
-            Observables.addConnection(msg.username, ws)
+            Observables.addMember(msg.username, ws)
             ws.send(
                 JSON.stringify({
                     type: msgTypes.confirmation,
@@ -32,7 +32,7 @@ const handlelogInObserver = (ws, msg) => {
         const id = authFields[0]
         const token = authFields[1]
         if(authorization(token, id)){
-            Observers.addConnection(msg.username, ws, msg.targets)
+            Observers.addMember(msg.username, ws)
             ws.send(
                 JSON.stringify({
                     type: msgTypes.confirmation,
@@ -50,10 +50,10 @@ const handlelogInObserver = (ws, msg) => {
 const handleRequestData = (ws, msg) => {
     if(authorizeInObserverList(msg.username)) {
         msg.targets.forEach( async target => {
-            const targetConnection = Observables.getConnection(target)
+            const targetConnection = Observables.getMember(target)
             if(targetConnection) {
                 const result = await hasTargetPermission(msg.username, target)
-                const connection = targetConnection.websocket
+                const connection = targetConnection.connection
 
                 if(result)
                     sendDataRequest(connection, msg.username, target, msg.data)
@@ -84,9 +84,9 @@ const handleRequestData = (ws, msg) => {
 const handlePermissionResponse = (ws, msg) => {
     if(authorizeInObservableList(msg.username)) {
         msg.targets.forEach( async target => {
-            const targetConnection = Observers.getConnection(target)
+            const targetConnection = Observers.getMember(target)
             if(targetConnection) {
-                sendPermissionResponse(msg.type, targetConnection.websocket, msg.username, target)
+                sendPermissionResponse(msg.type, targetConnection.connection, msg.username, target)
                 if (msg.type = msgTypes.grant) {
                     TargetsModel.insertTarget(target, msg.username)
                     sendDataRequest(ws, msg.username, msg.target, msg.data)
@@ -118,8 +118,8 @@ const handleDataRequest = (ws, msg) => {
         msg.targets.forEach( async target => {
             const targetConnection = getTargetConnection(target)
             if (targetConnection) {
-                if(targetConnection.websocket) {
-                    sendData(targetConnection.websocket, msg.username, msg.target, msg.data)
+                if(targetConnection.connection) {
+                    sendData(targetConnection.connection, msg.username, msg.target, msg.data)
                     ws.send(
                         JSON.stringify({
                             type: msgTypes.confirmation,
@@ -143,40 +143,45 @@ const handleDataRequest = (ws, msg) => {
 }
 
 const handleLogoutObservable = (ws, msg) => {
-    console.log(`${msg.username} disconnected and removed from the connections list.`)
-    Observables.removeConnectionByUsername(msg.username)
-    if(msg.targets) {
-        msg.targets.forEach(target => {
-            const targetConnection = Observers.getConnection(target)
-            Observers.removeConnectionTarget(target, msg.username)
-            if(targetConnection.websocket){
-                targetConnection.websocket.send(
-                    JSON.stringify({
-                        type: msgTypes.logOutObservable,
-                        username: msg.username,
-                        targets: [target],
-                        data: null
-                    })
-                )
-            }
-        })
-    }
-    ws.send(
-        JSON.stringify({
-            type: msgTypes.confirmation,
-            username: msg.username,
-            targets: msg.targets,
-            data: msgTypes.logOutObservable
-        })
-    )
+    if(authorizeInObservableList(msg.username)) {
+        Observables.removeMemberByUsername(msg.username)
+        if(msg.targets) {
+            msg.targets.forEach(target => {
+                const observerMember = Observers.getMember(target)
+                if (observerMember) {
+                    Observers.removeTarget(target, msg.username)
+                    if(observerMember.connection){
+                        observerMember.connection.send(
+                            JSON.stringify({
+                                type: msgTypes.logOutObservable,
+                                username: msg.username,
+                                targets: [target],
+                                data: null
+                            })
+                        )
+                    }
+                }
+            })
+        }
+        ws.send(
+            JSON.stringify({
+                type: msgTypes.confirmation,
+                username: msg.username,
+                targets: msg.targets,
+                data: msgTypes.logOutObservable
+            })
+        )
+        console.log(`${msg.username} logout and removed from the connections list.`)
+    } else
+        failedAuthorization(ws, 4002, 'ابتدا وارد شوید.')  
 }
 
 const handleLogoutObserver = (ws, msg) => {
     console.log(`${msg.username} disconnected and removed from the connections list.`)
-    const targets = Observers.getConnection(msg.username).targets
+    const targets = Observers.getMember(msg.username).targets
     if(targets) {
         targets.forEach( target => {
-            const targetConnection = Observables.getConnection(target).websocket
+            const targetConnection = Observables.getMember(target).connection
             Observables.removeConnectionTarget(target, msg.username)
             if(targetConnection) {
                 targetConnection.send(
@@ -207,11 +212,11 @@ const handleDisconnect = async (ws, code, reason) => {
         const targets = observableResult.connection.targets
         if(targets){ 
             observableResult.connection.targets.forEach((target) => {
-                Observers.removeConnectionTarget(target, observableResult.username)
-                const targetConnection = Observers.getConnection(target)
+                Observers.removeTarget(target, observableResult.username)
+                const targetConnection = Observers.getMember(target)
                     if (targetConnection) {
-                        if(targetConnection.websocket) {
-                            sendLogOutObservableMsg(targetConnection.websocket, observableResult.username, target)
+                        if(targetConnection.connection) {
+                            sendLogOutObservableMsg(targetConnection.connection, observableResult.username, target)
                         }
                     }
             }) 
@@ -224,10 +229,10 @@ const handleDisconnect = async (ws, code, reason) => {
             if(targets){
                 observerResult.connection.targets.forEach(target => {
                     Observables.removeConnectionTarget(target, observerResult.username)
-                    const targetConnection = Observables.getConnection(target)
+                    const targetConnection = Observables.getMember(target)
                         if (targetConnection) {
-                            if(targetConnection.websocket) {
-                                sendLogOutObserverMsg(targetConnection.websocket, observerResult.username, target)
+                            if(targetConnection.connection) {
+                                sendLogOutObserverMsg(targetConnection.connection, observerResult.username, target)
                             }
                         }
                 }) 
@@ -239,7 +244,7 @@ const handleDisconnect = async (ws, code, reason) => {
 
 
 function getTargetConnection(target) {
-    return Observers.getConnection(target)
+    return Observers.getMember(target)
 }
 
 async function hasTargetPermission(username, target) {
@@ -287,7 +292,7 @@ function sendOfflineTargetMsg(userConnection, username, target) {
             type: msgTypes.failed,
             username: username,
             targets: [target],
-            data: "Target is offline."
+            data: {code: 4003, reason: "Target is offline."}
         })
     )
 }
@@ -320,7 +325,7 @@ function sendInvalidTargetMsg(userConnection, username, target) {
             type: msgTypes.failed,
             username: username,
             targets: [target],
-            data: "Target is not valid."
+            data: {code: 4004, reason: "Target is not valid."}
         })
     )
 }
@@ -348,23 +353,29 @@ function sendData(targetConnection, username, target, data) {
 }
 
 function authorizeInObserverList(username) {
-    if(Observers.getConnection(username))
+    if(Observers.getMember(username))
         return true
     else
         return false
 }
 
 function authorizeInObservableList(username) {
-    if(Observables.getConnection(username))
+    if(Observables.getMember(username))
         return true
     else
         return false
 }
 
-function failedAuthorization(ws, code, reason) {
-    const msg = {code,reason}
-    ws.send(JSON.stringify(msg))
-    ws.terminate()
+function failedAuthorization(connection, code, reason) {
+    const data = JSON.stringify({code: code, reason: reason})
+    const msg = {
+        type: msgTypes.failed,
+        username: "",
+        targets: "",
+        data: data
+    }
+    connection.send(JSON.stringify(msg))
+    connection.terminate()
 }
 
 
