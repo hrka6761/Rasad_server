@@ -1,53 +1,43 @@
-import { TARGETS_TABLE } from "../utilities/env.js"
-import {dbConnectionPool} from "../utilities/db_config.js"
+import { TARGETS_TABLE } from "../utilities/env.js";
+import { dbConnectionPool } from "../utilities/db_config.js";
 
+export class TargetsModel {
+  static insertTarget = async (username, target) => {
+    await dbConnectionPool.query(
+      `INSERT INTO ${TARGETS_TABLE} (username, target) VALUE (?,?)`,
+      [username, target]
+    );
+  };
 
-class TargetsModel {
+  static fetchTarget = async (username, target) => {
+    const [[result]] = await dbConnectionPool.query(
+      `SELECT * FROM ${TARGETS_TABLE} WHERE username = ? AND target = ?`,
+      [username, target]
+    );
+    return result;
+  };
 
-    static insertTarget = async(username, target) => {
-        await dbConnectionPool.query(
-            `INSERT INTO ${TARGETS_TABLE} (username, target) VALUE (?,?)`,
-            [username, target])
-    }
+  static fetchTargets = async (username) => {
+    const [result] = await dbConnectionPool.query(
+      `SELECT * FROM ${TARGETS_TABLE} WHERE username = ?`,
+      [username]
+    );
+    return result;
+  };
 
-    static fetchTarget = async(username, target) => {
-        const [[result]] = await dbConnectionPool.query(
-            `SELECT *
-             FROM ${TARGETS_TABLE}
-             WHERE username = ? AND target = ?`,
-            [username,target])
-        return result
-    } 
+  static removeUserTarget = async (username, target) => {
+    const [result] = await dbConnectionPool.query(
+      `DELETE FROM ${TARGETS_TABLE} WHERE username = ? AND target = ?`,
+      [username, target]
+    );
+    return result.affectedRows;
+  };
 
-    static fetchTargets = async(username) => {
-        const [result] = await dbConnectionPool.query(
-            `SELECT *
-             FROM ${TARGETS_TABLE}
-             WHERE username = ?`,
-            [username])
-        return result
-    }
-
-    static removeUserTarget = async(username, target) => {
-        const [result] = await dbConnectionPool.query(
-            `DELETE
-             FROM ${TARGETS_TABLE}
-             WHERE username = ? AND target = ?`,
-            [username, target]
-        )
-        return result.affectedRows
-    }
-
-    static removeAllUserTargets = async(username) => {
-        const [result] = await dbConnectionPool.query(
-            `DELETE
-             FROM ${TARGETS_TABLE}
-             WHERE username = ?`,
-            [username]
-        )
-        return result.affectedRows
-    }
+  static removeAllUserTargets = async (username) => {
+    const [result] = await dbConnectionPool.query(
+      `DELETE FROM ${TARGETS_TABLE} WHERE username = ?`,
+      [username]
+    );
+    return result.affectedRows;
+  };
 }
-
-
-export {TargetsModel}
