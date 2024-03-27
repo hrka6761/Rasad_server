@@ -20,6 +20,9 @@ export const EDIT_USERNAME_END_POINT = "/edit/username";
 export const EDIT_EMAIL_END_POINT = "/edit/email";
 export const LOGIN_USER_END_POINT = "/login";
 export const DELETE_ACCOUNT_END_POINT = "/delete_account/:id";
+export const GET_OBSERVERS_END_POINT = "/get_observers"
+export const DELETE_OBSERVER_END_POINT = "/delete_observer"
+export const ADD_OBSERVER_END_POINT = "/add_observer"
 
 //Token signature
 export const SIGNATURE =

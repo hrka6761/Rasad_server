@@ -3,10 +3,11 @@ import { dbConnectionPool } from "../utilities/db_config.js";
 
 export class TargetsModel {
   static insertTarget = async (username, target) => {
-    await dbConnectionPool.query(
+    const [result] = await dbConnectionPool.query(
       `INSERT INTO ${TARGETS_TABLE} (username, target) VALUE (?,?)`,
       [username, target]
     );
+    return result.insertId
   };
 
   static fetchTarget = async (username, target) => {
@@ -19,7 +20,7 @@ export class TargetsModel {
 
   static fetchTargets = async (username) => {
     const [result] = await dbConnectionPool.query(
-      `SELECT * FROM ${TARGETS_TABLE} WHERE username = ?`,
+      `SELECT * FROM ${TARGETS_TABLE} WHERE target = ?`,
       [username]
     );
     return result;

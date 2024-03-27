@@ -1,5 +1,6 @@
 import { tryCatchHandler } from "../utilities/try_catch_handler.js";
 import { UserModel } from "../models/user_operations.js";
+import { TargetsModel } from "../models/targets_operations.js";
 import { v4 as uuid } from "uuid";
 import { UserDataValidation as udv } from "../utilities/user_data_validation.js";
 import pkg from "jsonwebtoken";
@@ -54,6 +55,52 @@ export const editEmail = tryCatchHandler(async (req, res) => {
   udv.validateDataToEditEmail(req.body);
   const result = await UserModel.editUserEmail(prepareDataForEdit(req.body));
   res.status(200).json(result);
+});
+
+export const getObservers = tryCatchHandler(async (req, res) => {
+  const targets = await TargetsModel.fetchTargets(req.body.username);
+
+  if (targets.length != 0) res.status(200).send(targets);
+  else res.sendStatus(404);
+});
+
+export const deleteObserver = tryCatchHandler(async (req, res) => {
+  const result = await TargetsModel.removeUserTarget(
+    req.body.username,
+    req.body.target
+  );
+
+  if (result === 1) res.sendStatus(200);
+  else res.sendStatus(404);
+});
+
+export const addObserver = tryCatchHandler(async (req, res) => {
+  const isUserExist = await UserModel.fetchUserByUsername(req.body.target);
+
+  if (!isUserExist) {
+    res.status(404).send("کاربری با این نام کاربری موجود نیست.");
+    return;
+  }
+
+  const isAlreadyAdded = await TargetsModel.fetchTarget(
+    req.body.username,
+    req.body.target
+  );
+
+  if (isAlreadyAdded) {
+    res
+      .status(400)
+      .send("شما قبلا اجازه دسترسی را برای این کاربر ثبت کرده اید.");
+    return;
+  }
+  
+  const result = await TargetsModel.insertTarget(
+    req.body.username,
+    req.body.target
+  );
+
+  if (result) res.sendStatus(200);
+  else res.sendStatus(500);
 });
 
 function prepareDataForInsert(user) {
