@@ -1,18 +1,18 @@
 //Database variables
-export const DB_HOST = "localhost";
+export const DB_HOST = "62.60.201.8";
 export const DB_PORT = "3306";
-export const DB_NAME = "rasaddb";
-export const DB_USERNAME = "root";
-export const DB_PASSWORD = "root";
+export const DB_NAME = "srprasad_db";
+export const DB_USERNAME = "srprasad_hrka6761";
+export const DB_PASSWORD = "S68UpudD)PIX";
 
 //Names of the database tables
 export const USER_TABLE = "user";
 export const TARGETS_TABLE = "user_targets";
 
 //Https variables
-export const HTTPS_PORT = "1367";
-export const SIGNALING_PORT = "13676";
-export const WEB_SOCKET_PORT = "11066";
+export const HTTPS_PORT = "30001";
+export const WEB_SOCKET_PORT = "30002";
+export const SIGNALING_PORT = "30003";
 export const BASE_USER_ROUTER = "/api/user";
 export const SEND_OTP_END_POINT = "/otp/:mobile";
 export const REGISTER_USER_END_POINT = "/register";

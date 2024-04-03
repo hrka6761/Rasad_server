@@ -12,14 +12,14 @@ import {
   onMessageWebsocket,
   onCloseWebsocket,
 } from "./routers/user_websocket_routers.js";
-import {
-  onMessageSignaling,
-  onCloseSignaling,
-} from "./routers/user_signaling_routers.js";
+// import {
+//   onMessageSignaling,
+//   onCloseSignaling,
+// } from "./routers/user_signaling_routers.js";
 
 const http = express();
 const webSocket = new WebSocketServer({ port: WEB_SOCKET_PORT });
-const signaling = new WebSocketServer({ port: SIGNALING_PORT });
+// const signaling = new WebSocketServer({ port: SIGNALING_PORT });
 
 http.use(express.json());
 http.use(BASE_USER_ROUTER, userRouter);
@@ -35,8 +35,8 @@ webSocket.on("connection", (ws) => {
   ws.on("close", (code, reason) => onCloseWebsocket(ws, code, reason));
 });
 
-signaling.on("connection", (ws) => {
-  ws.on("error", console.error);
-  ws.on("message", (data, isBinary) => onMessageSignaling(ws, data, isBinary));
-  ws.on("close", (code, reason) => onCloseSignaling(ws, code, reason));
-});
+// signaling.on("connection", (ws) => {
+//   ws.on("error", console.error);
+//   ws.on("message", (data, isBinary) => onMessageSignaling(ws, data, isBinary));
+//   ws.on("close", (code, reason) => onCloseSignaling(ws, code, reason));
+// });
