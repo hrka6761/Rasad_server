@@ -12,7 +12,8 @@ import {
 
 export function onMessageWebsocket(ws, data, isBinary) {
   try {
-    const msg = JSON.parse(convertDataToString(data));
+    const msg = convertMsgStringToMsgObject(convertDataToString(data));
+    if (!msg) return;
     switch (msg.type) {
       case msgTypes.logInObservable:
         handlelogInObservable(ws, msg);
@@ -45,12 +46,29 @@ export function onMessageWebsocket(ws, data, isBinary) {
 }
 
 export function onCloseWebsocket(ws, code, data) {
-  const reason = convertDataToString(data);
-  handleDisconnect(ws, code, reason);
+  try {
+    const reason = convertDataToString(data);
+    handleDisconnect(ws, code, reason);
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 function convertDataToString(data) {
-  const msg = Buffer.from(data);
-  const text = new TextDecoder("utf-8").decode(msg);
-  return text;
+  try {
+    const msg = Buffer.from(data);
+    const text = new TextDecoder("utf-8").decode(msg);
+    return text;
+  } catch (error) {
+    return null;
+  }
+}
+
+function convertMsgStringToMsgObject(str) {
+  try {
+    const msg = JSON.parse(str);
+    return msg;
+  } catch (error) {
+    return null;
+  }
 }
