@@ -75,7 +75,7 @@ export const deleteObserver = tryCatchHandler(async (req, res) => {
 });
 
 export const addObserver = tryCatchHandler(async (req, res) => {
-  const isUserExist = await UserModel.fetchUserByUsername(req.body.target);
+  const isUserExist = await UserModel.fetchUserByUsername(req.body.username);
 
   if (!isUserExist) {
     res.status(404).send("کاربری با این نام کاربری موجود نیست.");
