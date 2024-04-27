@@ -12,7 +12,12 @@ import {
 
 export function onMessageWebsocket(ws, data, isBinary) {
   try {
-    const msg = convertMsgStringToMsgObject(convertDataToString(data));
+    const str = convertDataToString(data);
+    if (str === "ping") {
+      ws.send("pong")
+      return;
+    }
+    const msg = convertMsgStringToMsgObject(str);
     if (!msg) return;
     switch (msg.type) {
       case msgTypes.logInObservable:
