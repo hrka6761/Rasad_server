@@ -49,9 +49,10 @@ export const handleRequest = (ws, msg) => {
       if (targetConnection) {
         const result = await hasTargetPermission(msg.username, target);
         const connection = targetConnection.connection;
+        const targetIndex = msg.targets.indexOf(target)
 
-        if (result) sendDataRequest(connection, target, msg.username, msg.data);
-        else sendPermissionRequest(connection, msg.username, target, msg.data);
+        if (result) sendDataRequest(connection, target, msg.username, msg.data[targetIndex]);
+        else sendPermissionRequest(connection, msg.username, target, msg.data[targetIndex]);
 
         ws.send(
           JSON.stringify({
